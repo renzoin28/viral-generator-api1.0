@@ -55,7 +55,7 @@ ${rssText}
 
 Extrae únicamente temas de los últimos 7 días.
 
-Devuelve JSON:
+Devuelve JSON válido:
 
 {
 "topics":[
@@ -76,8 +76,7 @@ const geminiResponse = await fetch(
   {
     method: "POST",
     headers: {
-      "Content-Type":
-        "application/json"
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       contents: [
@@ -97,18 +96,25 @@ const geminiData =
   await geminiResponse.json();
 
 const text =
-  geminiData.candidates?.[0]
-    ?.content?.parts?.[0]?.text || "";
+  geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
 res.json({
+  success: true,
   raw: text
 });
 ```
 
 } catch (error) {
+
+```
+console.error(error);
+
 res.status(500).json({
-error: error.message
+  success: false,
+  error: error.message
 });
+```
+
 }
 });
 
@@ -117,8 +123,11 @@ app.post("/api/script", async (req, res) => {
 try {
 
 ```
-const { topic, niche, context } =
-  req.body;
+const {
+  topic,
+  niche,
+  context
+} = req.body;
 
 const prompt = `
 ```
@@ -129,7 +138,7 @@ Tema:
 ${topic}
 
 Contexto:
-${context}
+${context || ""}
 
 Nicho:
 ${niche}
@@ -140,10 +149,10 @@ REQUISITOS:
 * Retención extrema
 * Hook brutal
 * CTA final
-* Español
+* Español latino
 * Escenas cada 5 segundos
 
-Devuelve JSON:
+Devuelve JSON válido:
 
 {
 "title":"",
@@ -166,8 +175,7 @@ const geminiResponse = await fetch(
   {
     method: "POST",
     headers: {
-      "Content-Type":
-        "application/json"
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       contents: [
@@ -182,6 +190,45 @@ const geminiResponse = await fetch(
     })
   }
 );
+
+const geminiData =
+  await geminiResponse.json();
+
+const text =
+  geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+res.json({
+  success: true,
+  raw: text
+});
+```
+
+} catch (error) {
+
+```
+console.error(error);
+
+res.status(500).json({
+  success: false,
+  error: error.message
+});
+```
+
+}
+
+});
+
+const PORT =
+process.env.PORT || 10000;
+
+app.listen(PORT, () => {
+
+console.log(
+`Servidor iniciado en puerto ${PORT}`
+);
+
+});
+
 
 const geminiData =
   await geminiResponse.json();
